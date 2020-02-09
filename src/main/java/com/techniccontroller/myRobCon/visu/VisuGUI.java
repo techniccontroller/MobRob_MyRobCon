@@ -5,8 +5,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.opencv.core.Core;
-
 import com.techniccontroller.myRobCon.core.MyRob;
 import com.techniccontroller.myRobCon.utils.Utils;
 import com.techniccontroller.myRobCon.visu.panels.ControlPanel;
@@ -15,7 +13,6 @@ import com.techniccontroller.myRobCon.visu.panels.KOOSCanvas;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -106,7 +103,7 @@ public class VisuGUI extends Application {
 		VBox rightPane = new VBox();
 		rightPane.setPadding(new Insets(10));
 		rightPane.setSpacing(5);
-		Image image = SwingFXUtils.toFXImage(robot.getCamera().getBlankImage(640, 480), null);
+		Image image = SwingFXUtils.toFXImage(Utils.getBlankImage(640, 480), null);
 		imageView = new ImageView(image);
 		imageView.setFitHeight(240);
 		imageView.setFitWidth(320);

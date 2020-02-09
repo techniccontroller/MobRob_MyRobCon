@@ -2,15 +2,10 @@ package com.techniccontroller.myRobCon.core;
 
 import java.net.URI;
 import java.util.LinkedList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.ros.address.InetAddressFactory;
 import org.ros.node.ConnectedNode;
-import org.ros.node.DefaultNodeFactory;
 import org.ros.node.DefaultNodeMainExecutor;
-import org.ros.node.Node;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 
@@ -20,6 +15,7 @@ import com.techniccontroller.myRobCon.MainNode;
 import com.techniccontroller.myRobCon.behaviours.BehaviourGroup;
 import com.techniccontroller.myRobCon.connectors.Actuator;
 import com.techniccontroller.myRobCon.connectors.CameraROS;
+import com.techniccontroller.myRobCon.connectors.Camera;
 import com.techniccontroller.myRobCon.connectors.EGOPoseSensor;
 import com.techniccontroller.myRobCon.connectors.Gripper;
 import com.techniccontroller.myRobCon.connectors.LSScanner;
@@ -34,7 +30,8 @@ public class MyRob {
 
 	private String rosMasterUri;
 	private LSScanner lsscanner;
-	private CameraROS camera;
+	private CameraROS cameraROS;
+	private Camera camera;
 	private Actuator actuator;
 	private EGOPoseSensor egoSensor;
 	private Gripper gripper;
@@ -68,7 +65,8 @@ public class MyRob {
 
 		addLaserscanner(1234);
 		addActuator("cmd_vel");
-		addCamera("cameranode/image_raw");
+		//addCameraROS("cameranode/image_raw");
+		addCamera("mobrob", 5001);
 		addEGOPoseSensor("pose");
 		addGripper(5044);
 	}
@@ -108,8 +106,14 @@ public class MyRob {
 		return 0;
 	}
 
-	public int addCamera(String topic) {
-		camera = new CameraROS(topic);
+	public int addCameraROS(String topic) {
+		cameraROS = new CameraROS(topic);
+		cameraROS.setVisu(visu);
+		return 0;
+	}
+	
+	public int addCamera(String ip, int port) {
+		camera = new Camera(ip, port);
 		camera.setVisu(visu);
 		return 0;
 	}
@@ -142,7 +146,11 @@ public class MyRob {
 		return lsscanner;
 	}
 
-	public CameraROS getCamera() {
+	public CameraROS getCameraROS() {
+		return cameraROS;
+	}
+	
+	public Camera getCamera() {
 		return camera;
 	}
 
@@ -179,9 +187,9 @@ public class MyRob {
 	}
 
 	public void run() {
-		if(camera != null) {
+		if(cameraROS != null) {
 			logOnVisu("Connecting Camera ...");
-			if(camera.createSubscriber(getNode()) == 0) {
+			if(cameraROS.createSubscriber(getNode()) == 0) {
 				logOnVisu("connected\n");
 			}else {
 				logOnVisu("not connected\n");
@@ -221,8 +229,8 @@ public class MyRob {
 			logOnVisu("Actuator Publisher closed!\n");
 			System.out.println("Actuator Publisher closed!");
 		}
-		if(camera != null) {
-			camera.shutdownSubscriber();
+		if(cameraROS != null) {
+			cameraROS.shutdownSubscriber();
 			logOnVisu("Camera Subscriber closed!\n");
 			System.out.println("Camera Subscriber closed!");
 		}

@@ -24,80 +24,105 @@ public class VisuSettings extends BorderPane{
 
 		Font titleFont = Font.font("Tahoma", FontWeight.NORMAL, 15);
 
+		int row = 0;
+		
 		Text titleRobot = new Text("Robot");
 		titleRobot.setFont(titleFont);
-		grid.add(titleRobot, 0, 0, 2, 1);
+		grid.add(titleRobot, 0, row++, 2, 1);
 
 		Label lblRosMasterUri = new Label("ROS_MASTER_URI:");
-		grid.add(lblRosMasterUri, 0, 1);
+		grid.add(lblRosMasterUri, 0, row);
 
 		TextField txtRosMasterUri = new TextField();
 		txtRosMasterUri.setPrefWidth(250);
 		txtRosMasterUri.setText(robot.getRosMasterUri());
-		grid.add(txtRosMasterUri, 1, 1, 2, 1);
-
-
-		Text titleCamera = new Text("Camera");
-		titleCamera.setFont(titleFont);
-		grid.add(titleCamera, 0, 2, 2, 1);
-
-		Label lblTopicCamera = new Label("Topic:");
-		grid.add(lblTopicCamera, 0, 3);
+		grid.add(txtRosMasterUri, 1, row++, 2, 1);
 
 		TextField txtTopicCamera = new TextField();
-		txtTopicCamera.setPrefWidth(150);
-		txtTopicCamera.setText("" + robot.getCamera().getTopicname());
-		grid.add(txtTopicCamera, 1, 3);
+		TextField txtPortCamera = new TextField();
+		TextField txtIPCamera = new TextField();
+		if(robot.getCameraROS() != null) {
+			Text titleCamera = new Text("CameraROS");
+			titleCamera.setFont(titleFont);
+			grid.add(titleCamera, 0, row++, 2, 1);
+
+			Label lblTopicCamera = new Label("Topic:");
+			grid.add(lblTopicCamera, 0, row);
+
+			txtTopicCamera.setPrefWidth(150);
+			txtTopicCamera.setText("" + robot.getCameraROS().getTopicname());
+			grid.add(txtTopicCamera, 1, row++);
+		}
+		else if(robot.getCamera() != null) {
+			Text titleCamera = new Text("Camera");
+			titleCamera.setFont(titleFont);
+			grid.add(titleCamera, 0, row++, 2, 1);
+
+			Label lblPortCamera = new Label("Port:");
+			grid.add(lblPortCamera, 0, row);
+
+			txtPortCamera.setPrefWidth(150);
+			txtPortCamera.setText("" + robot.getCamera().getPort());
+			grid.add(txtPortCamera, 1, row++);
+			
+			Label lblIPCamera = new Label("IP:");
+			grid.add(lblIPCamera, 0, row);
+
+			txtIPCamera.setPrefWidth(150);
+			txtIPCamera.setText("" + robot.getCamera().getIpaddress());
+			grid.add(txtIPCamera, 1, row++);
+		}
+		
 
 
 		Text titleLaser = new Text("Laserscanner");
 		titleLaser.setFont(titleFont);
-		grid.add(titleLaser, 0, 4, 2, 1);
+		grid.add(titleLaser, 0, row++, 2, 1);
 
 		Label lblTopicLaser = new Label("Port:");
-		grid.add(lblTopicLaser, 0, 5);
+		grid.add(lblTopicLaser, 0, row);
 
 		TextField txtPortLaser = new TextField();
 		txtPortLaser.setPrefWidth(150);
 		txtPortLaser.setText("" + robot.getLsscanner().getPort());
-		grid.add(txtPortLaser, 1, 5);
+		grid.add(txtPortLaser, 1, row++);
 
 
 		Text titleActuator = new Text("Actuator");
 		titleActuator.setFont(titleFont);
-		grid.add(titleActuator, 0, 6, 2, 1);
+		grid.add(titleActuator, 0, row++, 2, 1);
 
 		Label lblTopicActuator = new Label("Topic:");
-		grid.add(lblTopicActuator, 0, 7);
+		grid.add(lblTopicActuator, 0, row);
 
 		TextField txtTopicActuator = new TextField();
 		txtTopicActuator.setPrefWidth(150);
 		txtTopicActuator.setText("" + robot.getActuator().getTopicName());
-		grid.add(txtTopicActuator, 1, 7);
+		grid.add(txtTopicActuator, 1, row++);
 
 		Text titleEGO = new Text("EGOPose");
 		titleEGO.setFont(titleFont);
-		grid.add(titleEGO, 0, 8, 2, 1);
+		grid.add(titleEGO, 0, row++, 2, 1);
 
 		Label lblTopicEGO = new Label("Topic:");
-		grid.add(lblTopicEGO, 0, 9);
+		grid.add(lblTopicEGO, 0, row);
 
 		TextField txtTopicEGOPose = new TextField();
 		txtTopicEGOPose.setPrefWidth(150);
 		txtTopicEGOPose.setText("" + robot.getEgoSensor().getTopicname());
-		grid.add(txtTopicEGOPose, 1, 9);
+		grid.add(txtTopicEGOPose, 1, row++);
 
 		Text titleGripper = new Text("Gripper");
 		titleGripper.setFont(titleFont);
-		grid.add(titleGripper, 0, 10, 2, 1);
+		grid.add(titleGripper, 0, row++, 2, 1);
 
 		Label lblTopicGripper = new Label("Topic:");
-		grid.add(lblTopicGripper, 0, 11);
+		grid.add(lblTopicGripper, 0, row);
 
 		TextField txtTopicGripper = new TextField();
 		txtTopicGripper.setPrefWidth(150);
 		txtTopicGripper.setText("" + robot.getGripper().getPort());
-		grid.add(txtTopicGripper, 1, 11);
+		grid.add(txtTopicGripper, 1, row++);
 
 		setTop(grid);
 
@@ -108,7 +133,12 @@ public class VisuSettings extends BorderPane{
 		btnOk.setPrefWidth(100);
 		btnOk.setOnAction(e -> {
 			robot.setRosMasterUri(txtRosMasterUri.getText());
-			robot.getCamera().setTopicname(txtTopicCamera.getText());
+			if(robot.getCameraROS() != null)
+				robot.getCameraROS().setTopicname(txtTopicCamera.getText());
+			else if(robot.getCamera() != null) {
+				robot.getCamera().setPort(Integer.valueOf(txtPortCamera.getText()));
+				robot.getCamera().setIpaddress(txtIPCamera.getText());
+			}
 			robot.getLsscanner().setPort(Integer.valueOf(txtPortLaser.getText()));
 			robot.getActuator().setTopicName(txtTopicActuator.getText());
 			robot.getEgoSensor().setTopicname(txtTopicEGOPose.getText());

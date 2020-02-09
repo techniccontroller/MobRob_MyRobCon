@@ -16,6 +16,7 @@ public class VisuMenuBar extends MenuBar {
 	private VisuGUI visu;
 	private MenuItem menuConActuator;
 	private MenuItem menuConLaser;
+	private MenuItem menuConCameraROS;
 	private MenuItem menuConCamera;
 	private MenuItem menuConEGO;
 	private MenuItem menuConGripper;
@@ -30,8 +31,10 @@ public class VisuMenuBar extends MenuBar {
 		menuConActuator.setOnAction(this::connectActuator);
 		menuConLaser = new MenuItem("Connect Laserscanner");
 		menuConLaser.setOnAction(this::startLaser);
+		menuConCameraROS = new MenuItem("Connect CameraROS");
+		menuConCameraROS.setOnAction(this::startCameraROS);
 		menuConCamera = new MenuItem("Connect Camera");
-		menuConCamera.setOnAction(this::startCamera);
+		menuConCamera.setOnAction(this::connectCamera);
 		menuConEGO = new MenuItem("Connect EGOPose Sensor");
 		menuConEGO.setOnAction(this::startEGOPoseSensor);
 		menuConGripper = new MenuItem("Connect Gripper");
@@ -41,7 +44,10 @@ public class VisuMenuBar extends MenuBar {
 
 		menu.getItems().add(menuConActuator);
 		menu.getItems().add(menuConLaser);
-		menu.getItems().add(menuConCamera);
+		if(this.robot.getCameraROS() != null)
+			menu.getItems().add(menuConCameraROS);
+		if(this.robot.getCamera() != null)
+			menu.getItems().add(menuConCamera);
 		menu.getItems().add(menuConEGO);
 		menu.getItems().add(menuConGripper);
 		menu.getItems().add(menuSettings);
@@ -65,23 +71,35 @@ public class VisuMenuBar extends MenuBar {
 
 	public void disableConnects(boolean val){
 		menuConActuator.setDisable(val);
-		menuConCamera.setDisable(val);
+		menuConCameraROS.setDisable(val);
 		menuConEGO.setDisable(val);
 		menuConGripper.setDisable(val);
 		menuConLaser.setDisable(val);
 	}
 
-	protected void startCamera(ActionEvent event) {
+	protected void startCameraROS(ActionEvent event) {
 		if(robot.getNode() != null){
-			int res = robot.getCamera().createSubscriber(robot.getNode());
+			int res = robot.getCameraROS().createSubscriber(robot.getNode());
 			if (res == 0) {
-				robot.getCamera().startCameraThread();
-				menuConCamera.setText("Disconnect Camera");
+				menuConCameraROS.setText("Disconnect Camera");
 			} else if (res == 1) {
-				if(robot.getCamera().shutdownSubscriber() == 0){
-					menuConCamera.setText("Connect Camera");
+				if(robot.getCameraROS().shutdownSubscriber() == 0){
+					menuConCameraROS.setText("Connect Camera");
 				}
 			}
+		}
+		updateLabels();
+	}
+	
+	protected void connectCamera(ActionEvent event) {
+		int res = robot.getCamera().initCameraSocket();
+		if (res == 0) {
+			robot.getCamera().startCameraThread();
+			menuConCamera.setText("Disconnect Camera");
+		} else if (res == 1) {
+			robot.getCamera().stopCameraThread();
+			robot.getCamera().closeCameraSocket();
+			menuConCamera.setText("Connect Camera");
 		}
 		updateLabels();
 	}

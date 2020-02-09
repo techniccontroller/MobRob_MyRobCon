@@ -1,5 +1,8 @@
 package com.techniccontroller.myRobCon.utils;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
@@ -71,5 +74,32 @@ public final class Utils {
 		System.arraycopy(sourcePixels, 0, targetPixels, 0, sourcePixels.length);
 
 		return image;
+	}
+	
+	
+	/**
+	 * Create blank {@link BufferedImage} with label "Camera is OFF"
+	 *
+	 * @param width
+	 * @param height 
+	 * @return the blank {@link BufferedImage}
+	 */
+	public static BufferedImage getBlankImage(int width, int height) {
+		BufferedImage bImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+		Graphics2D g = (Graphics2D) bImage.getGraphics();
+
+		// Clear the background with white
+		g.setBackground(Color.BLACK);
+		g.clearRect(0, 0, width, height);
+
+		// Write some text
+		g.setColor(Color.WHITE);
+		Font font = new Font("Tahoma", Font.PLAIN, 28);
+		g.setFont(font);
+		g.drawString("Camera is OFF", width / 2 - 100, height / 2 - 20);
+
+		g.dispose();
+		return bImage;
 	}
 }
