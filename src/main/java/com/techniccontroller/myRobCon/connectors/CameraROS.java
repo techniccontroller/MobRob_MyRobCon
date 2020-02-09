@@ -34,7 +34,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import java.awt.Font;
 
-public class Camera {
+public class CameraROS {
 
 	private String topicname;
 	private VisuGUI visu;
@@ -55,7 +55,7 @@ public class Camera {
 	private final int height = 480;
 	private final int width = 640;
 
-	public Camera(String topic) {
+	public CameraROS(String topic) {
 		this.topicname = topic;
 	}
 

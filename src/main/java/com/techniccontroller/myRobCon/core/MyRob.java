@@ -19,7 +19,7 @@ import javafx.application.Platform;
 import com.techniccontroller.myRobCon.MainNode;
 import com.techniccontroller.myRobCon.behaviours.BehaviourGroup;
 import com.techniccontroller.myRobCon.connectors.Actuator;
-import com.techniccontroller.myRobCon.connectors.Camera;
+import com.techniccontroller.myRobCon.connectors.CameraROS;
 import com.techniccontroller.myRobCon.connectors.EGOPoseSensor;
 import com.techniccontroller.myRobCon.connectors.Gripper;
 import com.techniccontroller.myRobCon.connectors.LSScanner;
@@ -34,7 +34,7 @@ public class MyRob {
 
 	private String rosMasterUri;
 	private LSScanner lsscanner;
-	private Camera camera;
+	private CameraROS camera;
 	private Actuator actuator;
 	private EGOPoseSensor egoSensor;
 	private Gripper gripper;
@@ -109,7 +109,7 @@ public class MyRob {
 	}
 
 	public int addCamera(String topic) {
-		camera = new Camera(topic);
+		camera = new CameraROS(topic);
 		camera.setVisu(visu);
 		return 0;
 	}
@@ -142,7 +142,7 @@ public class MyRob {
 		return lsscanner;
 	}
 
-	public Camera getCamera() {
+	public CameraROS getCamera() {
 		return camera;
 	}
 
