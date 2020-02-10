@@ -63,12 +63,12 @@ public class MyRob {
 			Thread.currentThread().interrupt();
 		}
 
-		addLaserscanner(1234);
+		addLaserscanner("mobrob", 1234);
 		addActuator("cmd_vel");
 		//addCameraROS("cameranode/image_raw");
 		addCamera("mobrob", 5001);
 		addEGOPoseSensor("pose");
-		addGripper(5044);
+		addGripper("mobrob", 5044);
 	}
 
 	public void startRosNode(){
@@ -100,8 +100,8 @@ public class MyRob {
 		return id;
 	}
 
-	public int addLaserscanner(int port) {
-		lsscanner = new LSScanner(rosMasterUri, port);
+	public int addLaserscanner(String ip, int port) {
+		lsscanner = new LSScanner(ip, port);
 		lsscanner.setVisu(visu);
 		return 0;
 	}
@@ -129,8 +129,8 @@ public class MyRob {
 		return 0;
 	}
 
-	public int addGripper(int port) {
-		gripper = new Gripper(rosMasterUri, port);
+	public int addGripper(String ip, int port) {
+		gripper = new Gripper(ip, port);
 		return 0;
 	}
 

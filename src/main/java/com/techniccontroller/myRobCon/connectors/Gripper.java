@@ -6,278 +6,165 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+import org.ros.exception.RemoteException;
+import org.ros.exception.RosRuntimeException;
+import org.ros.exception.ServiceNotFoundException;
+import org.ros.node.ConnectedNode;
+import org.ros.node.service.ServiceClient;
+import org.ros.node.service.ServiceResponseListener;
+
+import myrobot_model.*;
+
+
 public class Gripper {
 
-	private String ipaddress;
 	private int port;
 
-	private Socket clientSocketCon;
-	private OutputStreamWriter outToServerCon;
-	private BufferedReader inFromServerCon;
+	
+	ServiceClient<AttinyCommandRequest, AttinyCommandResponse> serviceClient;
+	String output = "";
+	
+	Object SPERRE;
 
 	private boolean gripperActive = false;
 
 	public Gripper(String ip, int port) {
-		this.ipaddress = ip;
 		this.port = port;
+		SPERRE = new Object();
 	}
-
-	public int initGripperSocket() {
-		if (!gripperActive) {
-			try {
-				if (clientSocketCon == null || clientSocketCon.isClosed()) {
-					clientSocketCon = new Socket(ipaddress, port);
-					System.out.println("Create Control socket...");
-					outToServerCon = new OutputStreamWriter(clientSocketCon.getOutputStream());
-					inFromServerCon = new BufferedReader(new InputStreamReader(clientSocketCon.getInputStream()));
-				}
-				gripperActive = true;
-				return 0;
-
-			} catch (IOException e) {
-				System.err.println("Not able to open the control connection...");
-				gripperActive = false;
-				return -1;
-			}
-		}else {
-			return 1;
+	
+	public int createClient(final ConnectedNode connectedNode) {
+		
+	    try {
+	      serviceClient = connectedNode.newServiceClient("attiny_command", AttinyCommand._TYPE);
+	    } catch (ServiceNotFoundException e) {
+	      throw new RosRuntimeException(e);
+	    }
+	    return 0;
+	    
+	}
+	
+	public void closeGripperClient() {
+		if(!serviceClient.isConnected()) {
+			serviceClient.shutdown();
 		}
 	}
+	
+	public void sendCommand(String command) {
+		final AttinyCommandRequest request = serviceClient.newMessage();
+		
+	    request.setInput(command);
 
-	public void closeGripperSocket() {
-		if (!(clientSocketCon == null) && !clientSocketCon.isClosed()) {
-			try {
-				stopAll();
-				clientSocketCon.shutdownOutput();
-				clientSocketCon.close();
-				gripperActive = false;
-			} catch (IOException e) {
-				e.printStackTrace();
+	    serviceClient.call(request, new ServiceResponseListener<AttinyCommandResponse>() {
+	      @Override
+	      public void onSuccess(AttinyCommandResponse response) {
+	        output = response.getOutput();
+	      }
+
+	      @Override
+	      public void onFailure(RemoteException e) {
+	        throw new RosRuntimeException(e);
+	      }
+	    });
+	}
+	
+	public String sendGetCommand(String command) {
+		final AttinyCommandRequest request = serviceClient.newMessage();
+		
+	    request.setInput(command);
+
+	    serviceClient.call(request, new ServiceResponseListener<AttinyCommandResponse>() {
+	      @Override
+	      public void onSuccess(AttinyCommandResponse response) {
+	        output = response.getOutput();
+	        synchronized (SPERRE) {
+	        	SPERRE.notify();
 			}
+	      }
+
+	      @Override
+	      public void onFailure(RemoteException e) {
+	        throw new RosRuntimeException(e);
+	      }
+	    });
+	    
+	    try {
+	    	synchronized (SPERRE) {
+	        	SPERRE.wait(500);
+			}
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
 		}
+	    return output;
 	}
 
 	public void setActivServo(boolean value) {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("sv_ac(" + (value ? 1:0) + ")\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending activateServo command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("sv_ac(" + (value ? 1:0) + ")"));
 	}
 
 	public void writeServo(int angle) {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("sv_wr(" + angle + ")\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending writeServo command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("sv_wr(" + angle + ")\n"));
 	}
 
 	public void refreshServo() {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("sv_rf(1)\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending refreshServo command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("sv_rf(1)\n"));
 	}
 
 	public void initGRIP() {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("gr_it(1)\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending initGRIP command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("gr_it(1)\n"));
 	}
 
 	public void initVERT() {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("vt_it(1)\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending initVERT command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("vt_it(1)\n"));
 	}
 
 	public void setSpeedGRIP(int value) {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("gr_sp(" + Math.abs(value) + ")\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending setSpeedGRIP command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("gr_sp(" + Math.abs(value) + ")\n"));
 	}
 
 	public void setSpeedVERT(int value) {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("vt_sp(" + Math.abs(value) + ")\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending setSpeedVERT command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("vt_sp(" + Math.abs(value) + ")\n"));
 	}
 
 	public void moveAbsGRIP(int value) {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("gr_ma(" + value + ")\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending moveAbsGRIP command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("gr_ma(" + value + ")\n"));
 	}
 
 	public void moveAbsVERT(int value) {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("vt_ma(" + value + ")\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending moveAbsVERT command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("vt_ma(" + value + ")\n"));
 	}
 
 	public void moveRelGRIP(int value) {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("gr_mr(" + value + ")\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending moveRelGRIP command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("gr_mr(" + value + ")\n"));
 	}
 
 	public void moveRelVERT(int value) {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("vt_mr(" + value + ")\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending moveRelVERT command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("vt_mr(" + value + ")\n"));
 	}
 
 	public void stopGRIP() {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("gr_st(1)\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending stopGRIP command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("gr_st(1)\n"));
 	}
 
 	public void stopVERT() {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("vt_st(1)\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending stopVERT command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("vt_st(1)\n"));
 	}
 
 	public void stopAll() {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("st_st(1)\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending stopAll command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("st_st(1)\n"));
 	}
 
 	public void setStayActivStepper(boolean value) {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("st_ac(" + (value?1:0) + ")\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending stop command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("st_ac(" + (value?1:0) + ")\n"));
 	}
 
 	public void getPosVERT() {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("vt_gp(1)\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending getPosVERT command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("vt_gp(1)\n"));
 	}
 
 	public void getPosGRIP() {
-		try {
-			if (clientSocketCon != null && clientSocketCon.isConnected()) {
-				outToServerCon.write("gr_gp(1)\n");
-				outToServerCon.flush();
-				System.out.println(inFromServerCon.readLine());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error while sending getPosGRIP command" + e.getMessage());
-		}
+		System.out.println(sendGetCommand("gr_gp(1)\n"));
 	}
-
 
 	public int getPort() {
 		return port;

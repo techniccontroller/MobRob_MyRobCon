@@ -776,6 +776,14 @@ public class LSScanner {
 		this.port = port;
 	}
 
+	public String getIpaddress() {
+		return ipaddress;
+	}
+
+	public void setIpaddress(String ipaddress) {
+		this.ipaddress = ipaddress;
+	}
+
 	public void setVisu(VisuGUI visu) {
 		this.visu = visu;
 	}

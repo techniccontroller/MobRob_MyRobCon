@@ -73,8 +73,8 @@ public class VisuMenuBar extends MenuBar {
 		menuConActuator.setDisable(val);
 		menuConCameraROS.setDisable(val);
 		menuConEGO.setDisable(val);
-		menuConGripper.setDisable(val);
-		menuConLaser.setDisable(val);
+		//menuConGripper.setDisable(val);
+		//menuConLaser.setDisable(val);
 	}
 
 	protected void startCameraROS(ActionEvent event) {
@@ -146,14 +146,16 @@ public class VisuMenuBar extends MenuBar {
 	}
 
 	protected void connectGripper(ActionEvent event) {
-		int res = robot.getGripper().initGripperSocket();
-		if (res == 0) {
-			visu.getControlPanel().showGripperPane(true);
-			menuConGripper.setText("Disconnect Gripper");
-		} else if (res == 1) {
-			robot.getGripper().closeGripperSocket();
-			visu.getControlPanel().showGripperPane(false);
-			menuConGripper.setText("Connect Gripper");
+		if(robot.getNode() != null){
+			int res = robot.getGripper().createClient(robot.getNode());
+			if (res == 0) {
+				visu.getControlPanel().showGripperPane(true);
+				menuConGripper.setText("Disconnect Gripper");
+			} else if (res == 1) {
+				robot.getGripper().closeGripperClient();
+				visu.getControlPanel().showGripperPane(false);
+				menuConGripper.setText("Connect Gripper");
+			}
 		}
 	}
 

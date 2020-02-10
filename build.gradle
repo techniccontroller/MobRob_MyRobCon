@@ -36,12 +36,19 @@ targetCompatibility = 1.8
    version number changes.
 */
 
+repositories {
+  mavenLocal()
+  mavenCentral()
+  maven { url "/home/eaw/catkin_ws/devel/share/maven"}
+}
+
 dependencies {
   /* An external maven artifact dependency */
   compile 'org.ros.rosjava_core:rosjava:[0.3,0.4)'
   compile 'org.ros.rosjava_core:rosjava_geometry:0.3.6'
   compile 'org.ros.rosjava_messages:turtlesim:0.7.1'
   compile 'org.ros.rosjava_messages:sensor_msgs:1.12.7'
+  compile 'org.ros.rosjava_messages:myrobot_model:0.2.0'
   compile 'org.jblas:jblas:1.2.4'
   //compile group: 'org.openpnp', name: 'opencv', version: '3.2.0-0'
   compile 'org.apache.commons:commons-lang3:3.0'

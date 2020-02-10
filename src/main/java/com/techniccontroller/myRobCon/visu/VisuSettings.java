@@ -38,6 +38,8 @@ public class VisuSettings extends BorderPane{
 		txtRosMasterUri.setText(robot.getRosMasterUri());
 		grid.add(txtRosMasterUri, 1, row++, 2, 1);
 
+		
+		
 		TextField txtTopicCamera = new TextField();
 		TextField txtPortCamera = new TextField();
 		TextField txtIPCamera = new TextField();
@@ -57,13 +59,6 @@ public class VisuSettings extends BorderPane{
 			Text titleCamera = new Text("Camera");
 			titleCamera.setFont(titleFont);
 			grid.add(titleCamera, 0, row++, 2, 1);
-
-			Label lblPortCamera = new Label("Port:");
-			grid.add(lblPortCamera, 0, row);
-
-			txtPortCamera.setPrefWidth(150);
-			txtPortCamera.setText("" + robot.getCamera().getPort());
-			grid.add(txtPortCamera, 1, row++);
 			
 			Label lblIPCamera = new Label("IP:");
 			grid.add(lblIPCamera, 0, row);
@@ -71,6 +66,13 @@ public class VisuSettings extends BorderPane{
 			txtIPCamera.setPrefWidth(150);
 			txtIPCamera.setText("" + robot.getCamera().getIpaddress());
 			grid.add(txtIPCamera, 1, row++);
+
+			Label lblPortCamera = new Label("Port:");
+			grid.add(lblPortCamera, 0, row);
+
+			txtPortCamera.setPrefWidth(150);
+			txtPortCamera.setText("" + robot.getCamera().getPort());
+			grid.add(txtPortCamera, 1, row++);
 		}
 		
 
@@ -78,16 +80,26 @@ public class VisuSettings extends BorderPane{
 		Text titleLaser = new Text("Laserscanner");
 		titleLaser.setFont(titleFont);
 		grid.add(titleLaser, 0, row++, 2, 1);
+		
+		Label lblIPLaser = new Label("IP:");
+		grid.add(lblIPLaser, 0, row);
 
-		Label lblTopicLaser = new Label("Port:");
-		grid.add(lblTopicLaser, 0, row);
+		TextField txtIPLaser = new TextField();
+		txtIPLaser.setPrefWidth(150);
+		txtIPLaser.setText("" + robot.getLsscanner().getIpaddress());
+		grid.add(txtIPLaser, 1, row++);
+
+		Label lblPortLaser = new Label("Port:");
+		grid.add(lblPortLaser, 0, row);
 
 		TextField txtPortLaser = new TextField();
 		txtPortLaser.setPrefWidth(150);
 		txtPortLaser.setText("" + robot.getLsscanner().getPort());
 		grid.add(txtPortLaser, 1, row++);
+		
 
 
+		
 		Text titleActuator = new Text("Actuator");
 		titleActuator.setFont(titleFont);
 		grid.add(titleActuator, 0, row++, 2, 1);
@@ -140,6 +152,7 @@ public class VisuSettings extends BorderPane{
 				robot.getCamera().setIpaddress(txtIPCamera.getText());
 			}
 			robot.getLsscanner().setPort(Integer.valueOf(txtPortLaser.getText()));
+			robot.getLsscanner().setIpaddress(txtIPLaser.getText());
 			robot.getActuator().setTopicName(txtTopicActuator.getText());
 			robot.getEgoSensor().setTopicname(txtTopicEGOPose.getText());
 			robot.getGripper().setPort(Integer.valueOf(txtTopicGripper.getText()));
