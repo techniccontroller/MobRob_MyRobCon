@@ -15,37 +15,46 @@ public class GeometryUtils {
 		return t > 0.499f ? 1 : (t < -0.499f ? -1 : 0);
 	}
 	
-	/** Get the roll euler angle in radians, which is the rotation around the z axis. Requires that this quaternion is normalized.
-	 * @return the rotation around the z axis in radians (between -PI and +PI) */
+	/** Get the roll euler angle in radians
+	 * @return the rotation around the x axis in radians (between -PI and +PI) */
 	public static double getRollRad (Quaternion q) {
-		final int pole = getGimbalPole(q);
 		double x = q.getX();
 		double y = q.getY();
 		double z = q.getZ();
 		double w = q.getW();
-		return pole == 0 ? Math.atan2(2f * (w * z + y * x), 1f - 2f * (x * x + z * z)) : (double)pole * 2f
-			* Math.atan2(y, w);
+		double sinr_cosp = 2 * (w * x + y * z);
+	    double cosr_cosp = 1 - 2 * (x * x + y * y);
+	    double roll = Math.atan2(sinr_cosp, cosr_cosp);
+		return roll;
 	}
 	
-	/** Get the pitch euler angle in radians, which is the rotation around the x axis. Requires that this quaternion is normalized.
-	 * @return the rotation around the x axis in radians (between -(PI/2) and +(PI/2)) */
+	/** Get the pitch euler angle in radians
+	 * @return the rotation around the y axis in radians (between -(PI/2) and +(PI/2)) */
 	public static double getPitchRad (Quaternion q) {
 		final int pole = getGimbalPole(q);
 		double x = q.getX();
 		double y = q.getY();
 		double z = q.getZ();
 		double w = q.getW();
-		return pole == 0 ? (float)Math.asin(clamp(2f * (w * x - z * y), -1f, 1f)) : (float)pole * Math.PI * 0.5f;
+		double sinp = 2 * (w * y - z * x);
+	    double pitch = 0;
+		if (Math.abs(sinp) >= 1)
+	        pitch = Math.copySign(Math.PI / 2, sinp); // use 90 degrees if out of range
+	    else
+	        pitch = Math.asin(sinp);
+		return pitch;
 	}
 	
-	/** Get the yaw euler angle in radians, which is the rotation around the y axis. Requires that this quaternion is normalized.
-	 * @return the rotation around the y axis in radians (between -PI and +PI) */
+	/** Get the yaw euler angle in radians
+	 * @return the rotation around the z axis in radians (between -PI and +PI) */
 	public static double getYawRad (Quaternion q) {
-		final int pole = getGimbalPole(q);
 		double x = q.getX();
 		double y = q.getY();
 		double z = q.getZ();
 		double w = q.getW();
-		return pole == 0 ? Math.atan2(2f * (y * w + x * z), 1f - 2f * (y * y + x * x)) : 0f;
+		double siny_cosp = 2 * (w * z + x * y);
+	    double cosy_cosp = 1 - 2 * (y * y + z * z);
+	    double yaw = Math.atan2(siny_cosp, cosy_cosp);
+		return yaw;
 	}
 }

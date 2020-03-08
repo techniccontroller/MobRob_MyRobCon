@@ -67,7 +67,7 @@ public class MyRob {
 		addActuator("cmd_vel");
 		//addCameraROS("cameranode/image_raw");
 		addCamera("mobrob", 5001);
-		addEGOPoseSensor("pose");
+		addEGOPoseSensor("odom");
 		addGripper("mobrob", 5044);
 	}
 
