@@ -48,7 +48,7 @@ public class KOOSCanvas extends Canvas {
 	}
 
 	public void drawSamples() {
-		// Canvas-Hintergrund als Rechteck l�schen
+		// Canvas-Hintergrund als Rechteck loeschen
 		gc.clearRect(0, 0, getWidth(), getHeight());
 
 		gc.setFill(Color.DARKSLATEBLUE);
@@ -59,7 +59,7 @@ public class KOOSCanvas extends Canvas {
 		gc.setLineWidth(4);
 		gc.strokeOval(10, 20, 40, 40);
 
-		// Abgerundetes Rechteck f�llen
+		// Abgerundetes Rechteck fuellen
 		gc.setFill(Color.BLUE);
 		gc.fillRoundRect(60, 20, 40, 40, 10, 10);
 
@@ -74,7 +74,7 @@ public class KOOSCanvas extends Canvas {
 		// Pfad malen
 		gc.stroke();
 
-		// Gef�lltes Tortenst�ck darstellen
+		// Gefuelltes Tortenstueck darstellen
 		gc.setFill(Color.web("dodgerblue"));
 		gc.fillArc(180, 30, 30, 30, 45, 270, ArcType.ROUND);
 	}
@@ -89,9 +89,8 @@ public class KOOSCanvas extends Canvas {
 		double lenAxisX = getHeight() / 2;
 		if(x*scale > -lenAxisX && x*scale < lenAxisX &&  y*scale > -lenAxisY && y*scale < lenAxisY) {
 			gc.fillOval(((x-width/2) * scale), ((y-height/2) * scale), (width * scale), (height * scale));
-			gc.strokeLine(x*scale, y*scale, (x+Math.sin(angle)*height)*scale, (y+Math.cos(angle)*height)*scale);
+			gc.strokeLine(x*scale, y*scale, (x+Math.cos(angle)*height)*scale, (y+Math.sin(angle)*height)*scale);
 		}
-
 	}
 
 	public void drawDataPoint(double x, double y, double width, double height, Color color) {
