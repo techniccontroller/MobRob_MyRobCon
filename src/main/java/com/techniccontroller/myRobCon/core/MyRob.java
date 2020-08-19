@@ -76,7 +76,7 @@ public class MyRob {
 
 		NodeConfiguration configuration = NodeConfiguration.newPublic(host, URI.create(getRosMasterUri()));
 		rosNode = new MainNode();
-		configuration.setNodeName("myNodeName1");
+		configuration.setNodeName("myRobCon_node");
 		runner.execute(rosNode, configuration);
 
 		visu.getMenuBar().disableConnects(false);
