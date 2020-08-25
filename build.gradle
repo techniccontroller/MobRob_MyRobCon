@@ -48,12 +48,12 @@ dependencies {
   compile 'org.ros.rosjava_core:rosjava_geometry:0.3.6'
   compile 'org.ros.rosjava_messages:turtlesim:0.7.1'
   compile 'org.ros.rosjava_messages:sensor_msgs:1.12.7'
-  compile 'org.ros.rosjava_messages:myrobot_model:0.2.0'
+  compile 'org.ros.rosjava_messages:myrobot_model:0.0.1'
   compile 'org.jblas:jblas:1.2.4'
   //compile group: 'org.openpnp', name: 'opencv', version: '3.2.0-0'
   compile 'org.apache.commons:commons-lang3:3.0'
   //compile 'nu.pattern:opencv:2.4.9-5'
-  compile files('/home/eaw/opencv-3.2.0/build/bin/opencv-320.jar')
+  compile files('/home/eaw/opencv/opencv-3.4.10/build/bin/opencv-3410.jar')
 
 
 
