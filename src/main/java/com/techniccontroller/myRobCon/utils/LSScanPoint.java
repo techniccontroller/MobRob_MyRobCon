@@ -27,7 +27,7 @@ public class LSScanPoint extends Point2D{
 			this.x = x;
 			this.y = y;
 			this.angle = Math.toDegrees(Math.atan2(y, x));
-			this.dist = Math.sqrt(this.x*this.x + this.y + this.y);
+			this.dist = Math.sqrt(this.x*this.x + this.y*this.y);
 			this.angle = normalizeAngle(this.angle);
 		}
 
